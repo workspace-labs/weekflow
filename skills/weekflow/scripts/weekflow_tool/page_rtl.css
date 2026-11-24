@@ -1,0 +1,24 @@
+:root {
+  --meeting-arabic: "Meeting Arabic", var(--font-text);
+}
+
+body { font: 17px/1.55 var(--meeting-arabic); }
+h1, h2, h3, #panel-1 .step-heading, .delivery-date, .docs-header strong, .screen-name {
+  font-family: var(--meeting-arabic);
+  line-height: 1.35;
+}
+#panel-1 .step-heading { font-size: 1.0625rem; }
+time { display: inline-block; white-space: nowrap; }
+time, .live-date, .live-total, .delivery-total, .docs-count { unicode-bidi: isolate; }
+.delivery, .docs-header, .week-dates span:last-child { text-align: end; }
+.week-track {
+  background-image: linear-gradient(to left, var(--color-quiet) 1px, var(--color-lines) 1px);
+  background-position: right;
+}
+.week-track span {
+  left: auto;
+  inset-inline-start: clamp(0px, calc(var(--week-position) - 6px), calc(100% - 12px));
+}
+.running-table caption, .running-table th, .running-table td,
+.running-table td:nth-child(4), .running-table thead th:nth-child(4),
+.docs-table th, .docs-table td, .docs-table tr > :last-child { text-align: start; }

@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+dist/
+*.pdf
+!docs/workflow/weekflow - Workflow.pdf
+.DS_Store
+.env
+.env.*
+docs/weekly/screens/
+docs/weekly/pages/

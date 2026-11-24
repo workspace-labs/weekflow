@@ -1,0 +1,127 @@
+{
+  "project": {
+    "name": "weekflow",
+    "date": "2026-11-23",
+    "version": "0.1",
+    "status": "Approved 2026-11-23",
+    "summary": "Prepares and records the weekly client meeting, so the owner always has something real to show: the documents before approval, the working app during the build.",
+    "actors": [
+      {"name": "Owner", "role": "Runs the project and the meeting, and confirms everything before the client sees it."},
+      {"name": "Agent", "role": "Reads the real work, drafts the page and writes the record. Never touches the code."},
+      {"name": "Client", "role": "Tries the work, makes the decisions and signs when the date moves."}
+    ],
+    "assumptions": [
+      "The skill works from the first meeting, before any code exists.",
+      "project-docs still writes the documents and owns scope approval.",
+      "The page is shown on screen, and the client receives a PDF afterward.",
+      "A signature is needed only when the delivery date moves.",
+      "Each page uses the project's own design.",
+      "A missed meeting gets a short record, and open items carry over.",
+      "A locked week is corrected only by a dated entry in a later week.",
+      "Records live in docs/weekly. Without project-docs, the agent says so once and continues."
+    ]
+  },
+  "parts": [
+    {
+      "title": "Start the weekly meetings",
+      "summary": "Once per project: the agent reads what exists and asks only what is missing.",
+      "lanes": ["Owner", "Agent"],
+      "nodes": [
+        {"id": "start", "type": "start", "lane": "Owner", "title": "Asks to start weekly meetings"},
+        {"id": "read", "type": "step", "lane": "Agent", "title": "Reads the project", "detail": "documents, form, plan", "result": "What is known"},
+        {"id": "ask", "type": "step", "lane": "Agent", "title": "Asks what is missing", "detail": "day, language, who attends", "result": "Only the gaps"},
+        {"id": "answer", "type": "step", "lane": "Owner", "title": "Answers", "result": "Meeting details"},
+        {"id": "approved", "type": "decision", "lane": "Agent", "title": "Scope approved?",
+         "branches": [{"label": "Yes", "to": "build"}, {"label": "No", "to": "docs"}]},
+        {"id": "docs", "type": "step", "lane": "Agent", "title": "Sets docs mode", "detail": "no delivery date yet", "result": "Tracks decisions left", "next": "ready"},
+        {"id": "build", "type": "step", "lane": "Agent", "title": "Sets build mode", "detail": "weeks and delivery date", "result": "Tracks the date"},
+        {"id": "ready", "type": "end", "lane": "Owner", "title": "Meetings are set up", "to_part": 2}
+      ]
+    },
+    {
+      "title": "During the week",
+      "summary": "The owner mentions a change in plain words. Nothing enters the work before the client says yes.",
+      "lanes": ["Owner", "Agent"],
+      "nodes": [
+        {"id": "start", "type": "start", "lane": "Owner", "title": "A change comes up"},
+        {"id": "tell", "type": "step", "lane": "Owner", "title": "Tells the agent", "detail": "what, why, about how long", "result": "The change in plain words"},
+        {"id": "who", "type": "step", "lane": "Agent", "title": "Notes who raised it", "detail": "client or owner, and when", "result": "A dated entry"},
+        {"id": "days", "type": "decision", "lane": "Agent", "title": "Days known?",
+         "branches": [{"label": "Yes", "to": "wait"}, {"label": "No", "to": "ask"}]},
+        {"id": "ask", "type": "step", "lane": "Owner", "title": "Gives the days", "detail": "the agent never guesses", "result": "Days to add", "next": "wait"},
+        {"id": "wait", "type": "step", "lane": "Agent", "title": "Marks it waiting", "detail": "for the client's decision", "result": "A decision for the meeting"},
+        {"id": "done", "type": "end", "lane": "Agent", "title": "Waits for the meeting", "to_part": 3}
+      ]
+    },
+    {
+      "title": "Prepare the meeting",
+      "summary": "The agent drafts the page from real work. The client sees nothing until the owner confirms it.",
+      "lanes": ["Owner", "Agent"],
+      "nodes": [
+        {"id": "start", "type": "start", "lane": "Owner", "title": "Says prepare it"},
+        {"id": "read", "type": "step", "lane": "Agent", "title": "Reads the real week", "detail": "work, changes, promises", "result": "What truly happened"},
+        {"id": "mode", "type": "decision", "lane": "Agent", "title": "Build started?",
+         "branches": [{"label": "Yes", "to": "app"}, {"label": "No", "to": "doc"}]},
+        {"id": "app", "type": "step", "lane": "Agent", "title": "Opens the real app", "detail": "new pictures or a recording", "result": "Proof of the work", "next": "draft"},
+        {"id": "doc", "type": "step", "lane": "Agent", "title": "Takes the real document", "result": "Sentences to correct"},
+        {"id": "draft", "type": "step", "lane": "Agent", "title": "Drafts the five steps", "result": "The meeting page"},
+        {"id": "ok", "type": "decision", "lane": "Owner", "title": "Owner confirms?", "detail": "reads every line",
+         "branches": [{"label": "Yes", "to": "done"}, {"label": "Corrects", "to": "fix"}]},
+        {"id": "fix", "type": "step", "lane": "Agent", "title": "Fixes the page", "next": "ok"},
+        {"id": "done", "type": "end", "lane": "Owner", "title": "Ready", "to_part": 4}
+      ]
+    },
+    {
+      "title": "Hold the meeting",
+      "summary": "Five steps on one page. The client tries the work and makes the decisions.",
+      "lanes": ["Owner", "Client"],
+      "nodes": [
+        {"id": "start", "type": "start", "lane": "Owner", "title": "Opens the page"},
+        {"id": "where", "type": "step", "lane": "Owner", "title": "Where we are", "detail": "one line, one truth", "result": "The client knows the stage"},
+        {"id": "see", "type": "step", "lane": "Client", "title": "See it", "detail": "reads or tries the work", "result": "Corrections"},
+        {"id": "answer", "type": "step", "lane": "Client", "title": "Your decisions", "detail": "sees the cost first", "result": "Each choice and its cost"},
+        {"id": "decide", "type": "decision", "lane": "Client", "title": "Decides now?",
+         "branches": [{"label": "Yes", "to": "next"}, {"label": "Not yet", "to": "carry"}]},
+        {"id": "carry", "type": "step", "lane": "Owner", "title": "Keeps it open", "detail": "for next week", "result": "Still waiting", "next": "next"},
+        {"id": "next", "type": "step", "lane": "Owner", "title": "Next week", "detail": "what to see, what we need", "result": "Clear promises"},
+        {"id": "agreed", "type": "step", "lane": "Client", "title": "What we agreed", "detail": "read before leaving", "result": "Agreed in the room"},
+        {"id": "done", "type": "end", "lane": "Owner", "title": "Meeting closes", "to_part": 5}
+      ]
+    },
+    {
+      "title": "Record it and lock the week",
+      "summary": "The agent writes what really happened. A moved date needs the client's signature.",
+      "lanes": ["Owner", "Agent", "Client"],
+      "nodes": [
+        {"id": "start", "type": "start", "lane": "Owner", "title": "Shares the outcome"},
+        {"id": "write", "type": "step", "lane": "Agent", "title": "Writes the record", "detail": "who, what, when", "result": "The week's record"},
+        {"id": "moved", "type": "decision", "lane": "Agent", "title": "Date moved?",
+         "branches": [{"label": "No", "to": "pdf"}, {"label": "Yes", "to": "sign"}]},
+        {"id": "sign", "type": "step", "lane": "Client", "title": "Signs the new date", "result": "A signed date", "next": "pdf"},
+        {"id": "pdf", "type": "step", "lane": "Agent", "title": "Makes the PDF", "result": "The client's copy"},
+        {"id": "confirm", "type": "step", "lane": "Owner", "title": "Confirms and sends it", "result": "The client has it"},
+        {"id": "lock", "type": "step", "lane": "Agent", "title": "Locks the week", "detail": "open items carry over", "result": "A fixed record"},
+        {"id": "more", "type": "decision", "lane": "Agent", "title": "Project over?",
+         "branches": [{"label": "Yes", "to": "done"}, {"label": "No", "to": "again"}]},
+        {"id": "again", "type": "end", "lane": "Owner", "title": "Next week", "to_part": 2},
+        {"id": "done", "type": "end", "lane": "Agent", "title": "All weeks closed", "to_part": 6}
+      ]
+    },
+    {
+      "title": "Hand the history to checkflow",
+      "summary": "At the end, every change, delay and approval goes into the final delivery check.",
+      "lanes": ["Owner", "Agent"],
+      "nodes": [
+        {"id": "start", "type": "start", "lane": "Owner", "title": "Asks for the final check"},
+        {"id": "gather", "type": "step", "lane": "Agent", "title": "Gathers all weeks", "detail": "changes, delays, approvals", "result": "One project history"},
+        {"id": "add", "type": "step", "lane": "Agent", "title": "Adds up the dates", "detail": "planned, added, real end", "result": "Dates that add up"},
+        {"id": "read", "type": "step", "lane": "Owner", "title": "Confirms the history", "result": "A confirmed history"},
+        {"id": "has", "type": "decision", "lane": "Agent", "title": "checkflow installed?",
+         "branches": [{"label": "Yes", "to": "hand"}, {"label": "No", "to": "keep"}]},
+        {"id": "keep", "type": "stop", "lane": "Owner", "title": "Keeps the record", "detail": "the agent says so once"},
+        {"id": "hand", "type": "step", "lane": "Agent", "title": "Hands it to checkflow", "result": "Rows for the final document"},
+        {"id": "done", "type": "end", "lane": "Owner", "title": "Project history complete"}
+      ]
+    }
+  ]
+}

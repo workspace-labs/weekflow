@@ -1,0 +1,51 @@
+@counter-style date-day-value {
+  system: fixed 0;
+  symbols: "Date outside preview range";
+  fallback: decimal;
+}
+
+@counter-style month-name {
+  system: fixed 0;
+  symbols: "" " January" " February" " March" " April" " May" " June"
+           " July" " August" " September" " October" " November" " December";
+}
+
+@counter-style omitted-year {
+  system: fixed 0;
+  symbols: "";
+  fallback: decimal;
+}
+
+@counter-style day-count {
+  system: fixed -1;
+  symbols: "Days outside preview range" "0 days" "1 day";
+  fallback: decimal;
+}
+
+@counter-style day-suffix {
+  system: fixed -1;
+  symbols: "" "" "";
+  fallback: plural-days;
+}
+
+@counter-style plural-days {
+  system: cyclic;
+  symbols: " days";
+}
+
+@counter-style delivery-count {
+  system: fixed -1;
+  symbols: "Days outside preview range" "No days added" "1 day added";
+  fallback: decimal;
+}
+
+@counter-style delivery-suffix {
+  system: fixed -1;
+  symbols: "" "" "";
+  fallback: plural-delivery-days;
+}
+
+@counter-style plural-delivery-days {
+  system: cyclic;
+  symbols: " days added";
+}

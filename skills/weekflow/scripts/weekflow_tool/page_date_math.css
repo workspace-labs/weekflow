@@ -1,0 +1,62 @@
+
+.live-date::before {
+  /* The record calendar ends at 31 December 9999. Show a message instead
+     of a date if the selected days move beyond the record calendar. */
+  --last-day: 3652058;
+  --requested-day: calc(var(--start-day) + var(--added, 0));
+  --show-date: calc(1 - clamp(0, var(--requested-day) - var(--last-day), 1));
+  --ordinal: min(var(--requested-day), var(--last-day));
+
+  /* Count whole Gregorian cycles from 1 January, year 1. The last day
+     of a leap century or leap year still belongs to that century or year.
+     Add a half before division to keep exact boundaries from rounding down
+     one extra step in browser math. The numerators count whole days. */
+  --eras: round(down, (var(--ordinal) + 0.5) / 146097, 1);
+  --in-era: mod(var(--ordinal), 146097);
+  --centuries: min(3, round(down, (var(--in-era) + 0.5) / 36524, 1));
+  --in-century: calc(var(--in-era) - var(--centuries) * 36524);
+  --four-years: round(down, (var(--in-century) + 0.5) / 1461, 1);
+  --in-four-years: mod(var(--in-century), 1461);
+  --years: min(3, round(down, (var(--in-four-years) + 0.5) / 365, 1));
+  --year: calc(400 * var(--eras) + 100 * var(--centuries) + 4 * var(--four-years) + var(--years) + 1);
+  --year-day: calc(var(--in-four-years) - var(--years) * 365);
+
+  /* A year divisible by four is a leap year. Century years also need
+     to be divisible by 400. */
+  --fourth-year: calc(1 - min(1, mod(var(--year), 4)));
+  --ordinary-year: min(1, mod(var(--year), 100));
+  --fourth-century: calc(1 - min(1, mod(var(--year), 400)));
+  --leap: calc(var(--fourth-year) * max(var(--ordinary-year), var(--fourth-century)));
+
+  /* Start counting months in March so February's changing length is last.
+     March through July and August through December each have 153 days. */
+  --before-march: clamp(0, 59 + var(--leap) - var(--year-day), 1);
+  --march-day: calc(var(--year-day) - 59 - var(--leap) + var(--before-march) * (365 + var(--leap)));
+  --march-month: round(down, (5 * var(--march-day) + 2.5) / 153, 1);
+  --month: calc(mod(var(--march-month) + 2, 12) + 1);
+  --day: calc(var(--march-day) - round(down, (153 * var(--march-month) + 2.5) / 5, 1) + 1);
+  --shown-year: calc(var(--year) * min(1, abs(var(--year) - var(--meeting-year))));
+
+  counter-reset: date-day calc(var(--day) * var(--show-date))
+                 date-month calc(var(--month) * var(--show-date))
+                 date-year calc(var(--shown-year) * var(--show-date));
+  content: counter(date-day, date-day-value) counter(date-month, month-name) " " counter(date-year, omitted-year);
+}
+
+.live-total::before,
+.delivery-total::before {
+  /* Browser counters hold signed 32-bit integers. Use -1 for the
+     message instead of letting the browser display a clamped total. */
+  --max-counter: 2147483647;
+  --days-outside-range: clamp(0, var(--added, 0) - var(--max-counter), 1);
+  --days-in-range: min(var(--added, 0), var(--max-counter));
+  counter-reset: added-days calc(var(--days-in-range) * (1 - var(--days-outside-range)) - var(--days-outside-range));
+}
+
+.live-total::before {
+  content: counter(added-days, day-count) counter(added-days, day-suffix);
+}
+
+.delivery-total::before {
+  content: counter(added-days, delivery-count) counter(added-days, delivery-suffix);
+}

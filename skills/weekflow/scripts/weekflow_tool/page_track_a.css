@@ -1,0 +1,115 @@
+.delivery-track {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  padding: .9rem clamp(.8rem, 2.2vw, 1.75rem);
+}
+.track-title {
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .055em;
+  text-transform: uppercase;
+  color: var(--color-quiet);
+}
+[dir="rtl"] .track-title { letter-spacing: normal; }
+.track-axis {
+  /* --added follows the same radio-answer sum as the header and Running Date cells. */
+  --track-added: var(--added, 0);
+  --has-move: clamp(0, var(--track-added), 1);
+  --plan-days: var(--plan-from-meeting);
+  --now-days: calc(var(--plan-days) + var(--track-added));
+  --early: clamp(0, var(--plan-days) + 1, 1);
+  --late: clamp(0, 0 - var(--now-days), 1);
+  --between: calc(1 - var(--early) - var(--late));
+  /* Today can land before, between or after the two delivery milestones. */
+  --first-day: min(0, var(--plan-days));
+  --span-days: max(1, max(0, var(--now-days)) - var(--first-day));
+  --squeezed: calc(var(--has-move) * clamp(0, var(--span-days) - 4 * var(--track-added), 1));
+  --actual-middle: calc((var(--early) * var(--plan-days) + var(--late) * var(--now-days) - var(--first-day)) / var(--span-days));
+  --middle-share: calc((1 - var(--squeezed)) * var(--actual-middle) + var(--squeezed) * (.75 * var(--early) + .25 * var(--late)));
+  --middle: clamp(16px, calc(100% * var(--middle-share)), calc(100% - 16px));
+  --today: calc(100% * var(--late) + var(--middle) * var(--between));
+  --plan: calc(var(--early) * ((1 - var(--has-move)) * 100% + var(--has-move) * var(--middle)));
+  --now: calc((1 - var(--late)) * 100% + var(--late) * var(--middle));
+  /* The labels have their own bounds so long dates cannot collide. */
+  --label-size: min(8rem, 29%);
+  --label-start: calc(var(--label-size) / 2);
+  --label-end: calc(100% - var(--label-start));
+  --label-middle: clamp(calc(var(--label-size) * 1.5 + 4px), var(--middle), calc(100% - var(--label-size) * 1.5 - 4px));
+  --today-label: calc(var(--early) * var(--label-start) + var(--late) * var(--label-end) + var(--between) * var(--label-middle));
+  --plan-label: calc((1 - var(--early)) * var(--label-start) + var(--early) * ((1 - var(--has-move)) * var(--label-end) + var(--has-move) * var(--label-middle)));
+  --now-label: calc((1 - var(--late)) * var(--label-end) + var(--late) * var(--label-middle));
+  --rail-y: 2.65rem;
+  position: relative;
+  margin-inline: .45rem;
+  block-size: 5rem;
+}
+.track-axis::before, .track-move {
+  position: absolute;
+  inset-block-start: calc(var(--rail-y) - 2px);
+  block-size: 4px;
+  border-radius: 99px;
+}
+.track-axis::before { content: ""; inset-inline: 0; background: var(--color-lines); }
+.track-move {
+  display: var(--show-date-move, none);
+  inset-inline-start: var(--plan);
+  inline-size: calc(var(--now) - var(--plan));
+  background: var(--color-main);
+}
+.track-break {
+  position: absolute;
+  inset-inline-start: calc((var(--today) + var(--middle)) / 2 - .6rem);
+  inset-block-start: calc(var(--rail-y) - .45rem);
+  inline-size: 1.2rem;
+  block-size: .9rem;
+  opacity: var(--squeezed);
+  background: var(--color-card);
+}
+.track-break::before, .track-break::after {
+  content: "";
+  position: absolute;
+  inset-block: .05rem;
+  inset-inline-start: .35rem;
+  border-inline-start: 2px solid var(--color-quiet);
+  transform: skewX(-24deg);
+}
+.track-break::after { inset-inline-start: .7rem; }
+[dir="rtl"] .track-break::before, [dir="rtl"] .track-break::after { transform: skewX(24deg); }
+.track-dot {
+  position: absolute;
+  inset-block-start: calc(var(--rail-y) - 7px);
+  inset-inline-start: calc(var(--point) - 7px);
+  inline-size: 14px;
+  block-size: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--color-main);
+  background: var(--color-main);
+}
+.dot-today { --point: var(--today); border-color: var(--color-quiet); background: var(--color-background); }
+.dot-plan { --point: var(--plan); background: var(--track-plan-fill, var(--color-main)); }
+.dot-now { --point: var(--now); display: var(--show-date-move, none); }
+.track-label {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--label-center) - var(--label-start));
+  inline-size: var(--label-size);
+  text-align: center;
+}
+.label-today { --label-center: var(--today-label); }
+.label-plan { --label-center: var(--plan-label); }
+.label-now { --label-center: var(--now-label); display: var(--show-date-move, none); }
+.track-label strong, .track-label small { position: absolute; inset-inline: 0; }
+.track-label strong { inset-block-end: calc(100% - var(--rail-y) + 10px); font-size: clamp(.8rem, 1.5vw, 1rem); line-height: 1.2; }
+.track-label small { inset-block-start: calc(var(--rail-y) + 13px); color: var(--color-quiet); line-height: 1.25; }
+.track-label time { white-space: normal; }
+.label-now strong { color: var(--color-main-text); }
+.track-planned { display: var(--show-date-move, none); }
+.track-on-time { display: var(--hide-for-date-move, block); }
+.track-label.label-plan strong { color: var(--track-planned-text, var(--color-main-text)); }
+[data-today-first] .label-today, .delivery-track:not([data-today-first]) .label-plan { text-align: start; }
+[data-today-first] .label-now { text-align: end; }
+[data-today-first] .label-plan { text-align: var(--track-plan-align, end); }
+@media (max-width: 35rem) {
+  .track-axis { --label-size: 26%; }
+  [data-today-first] .label-plan { text-align: end; }
+}

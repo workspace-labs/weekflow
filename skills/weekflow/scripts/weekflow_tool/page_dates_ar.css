@@ -1,0 +1,56 @@
+
+@counter-style date-day-value {
+  system: fixed 0;
+  symbols: "التاريخ خارج نطاق المعاينة";
+  fallback: decimal;
+}
+
+@counter-style month-name {
+  system: fixed 0;
+  symbols: "" " يناير" " فبراير" " مارس" " أبريل" " مايو" " يونيو"
+           " يوليو" " أغسطس" " سبتمبر" " أكتوبر" " نوفمبر" " ديسمبر";
+}
+
+@counter-style omitted-year {
+  system: fixed 0;
+  symbols: "";
+  fallback: decimal;
+}
+
+@counter-style day-count {
+  system: fixed -1;
+  symbols: "عدد الأيام خارج نطاق المعاينة" "0 يوم" "يوم واحد" "يومان";
+  fallback: decimal;
+}
+
+@counter-style day-suffix {
+  system: fixed 0;
+  symbols: "" " يومًا" " أيام";
+}
+
+@counter-style delivery-count {
+  system: fixed -1;
+  symbols: "عدد الأيام خارج نطاق المعاينة" "لا أيام إضافية" "يوم إضافي واحد" "يومان إضافيان";
+  fallback: decimal;
+}
+
+@counter-style delivery-suffix {
+  system: fixed 0;
+  symbols: "" " يومًا إضافيًا" " أيام إضافية";
+}
+
+.live-total::before, .delivery-total::before {
+  --last-two: mod(var(--days-in-range), 100);
+  --plural: calc(clamp(0, var(--last-two) - 2, 1) * clamp(0, 11 - var(--last-two), 1));
+  --use-suffix: calc(clamp(0, var(--days-in-range) - 2, 1) * (1 - var(--days-outside-range)));
+  counter-reset: added-days calc(var(--days-in-range) * (1 - var(--days-outside-range)) - var(--days-outside-range))
+                 added-suffix calc((1 + var(--plural)) * var(--use-suffix));
+}
+
+.live-total::before {
+  content: counter(added-days, day-count) counter(added-suffix, day-suffix);
+}
+
+.delivery-total::before {
+  content: counter(added-days, delivery-count) counter(added-suffix, delivery-suffix);
+}
