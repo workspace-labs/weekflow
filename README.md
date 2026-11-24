@@ -50,6 +50,13 @@ saved meeting content as the page. A build decision that moves the delivery
 date needs the client's signature on paper. Once the current PDF and any
 required signature are recorded, the owner can close and lock the week.
 
+At the close of a build week, the agent shows which agreed changes need an
+update to the project requirements document (PRD), including earlier decisions
+still waiting. It offers to hand the details to project-docs. When project-docs
+records the change ID in the PRD's dated change history, the item leaves the
+handoff list. Work on that change waits for the designated approver to approve
+the revised requirement and its check, even when the change adds zero days.
+
 Open decisions, promises and outstanding needs carry forward. A missed
 meeting gets its own record. A mistake in a locked week gets a dated
 correction. At the end of the build, the owner confirms the changes,
@@ -301,10 +308,10 @@ The tests cover both meeting kinds, saved answers, PDF drawing, locked
 records, carry-over, and secrets. PDF drawing needs ReportLab. Tests that
 read PDF text also need `pdftotext`. Tests skip when their tools are missing.
 
-On macOS, Python 3.9.6 passed all 409 tests with ReportLab and `pdftotext`.
-Python 3.15.2 collected the same 409 tests, passed 359 and skipped 50 PDF
-tests because ReportLab was unavailable. A repeat of the guide in a fresh
-home folder opened the first sample meeting page in Chrome.
+On macOS, Python 3.9.6 passed all 440 tests with ReportLab and `pdftotext`.
+Python 3.15.2 collected the same 440 tests, passed 375 and skipped 65.
+A previous run of the guide in a fresh home folder opened the first sample
+meeting page in Chrome.
 
 ## Limits
 

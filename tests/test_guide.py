@@ -29,6 +29,22 @@ def code_blocks(section, language):
 
 
 class GuideTests(unittest.TestCase):
+    def test_build_lock_hands_uncited_scope_changes_to_project_docs(self):
+        skill = (ROOT / "skills/weekflow/SKILL.md").read_text(encoding="utf-8")
+        section = skill.split("\n## Make the PDF and lock the week\n", 1)[1].split("\n## ", 1)[0]
+        required = (
+            "After every successful build-meeting lock",
+            "Still waiting from earlier weeks",
+            "whole change ID on any dated `Changed` line in `docs/prd.md`",
+            "Please cite Week 4 / C-003 in the reason on a dated Changed line in the PRD.",
+            "Offer the owner a project-docs update",
+            "A weekly yes records a meeting decision. Scope approval requires the designated "
+            "approver to approve the written requirement and its check.",
+        )
+        for phrase in required:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, section)
+
     def run_tool(self, *args):
         result = subprocess.run(
             [sys.executable, str(TOOL), *args], capture_output=True, text=True, timeout=15,

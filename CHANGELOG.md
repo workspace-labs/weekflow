@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.0] - 2026-11-24
+
+- At build-meeting close, weekflow offers to hand agreed changes to project-docs and carries earlier scope decisions forward until their IDs appear in the PRD's dated change history. The designated approver approves the revised requirement and its check before it is built.
+
 ## [0.1.0] - 2026-11-24
 
 - Added build-mode setup, waiting changes, a five-section draft, and owner confirmation for a local text copy.
