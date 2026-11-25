@@ -144,7 +144,7 @@ render = meetings.render_html
 def with_old_page(files, *args, **kwargs):
     view = original(files, *args, allow_missing_page=True, **kwargs)
     page = files.path(meetings.page_file(view.week['number']))
-    page.write_text(render(view, legacy_build_fonts=True), encoding='utf-8')
+    page.write_bytes(render(view, legacy_build_fonts=True).encode('utf-8'))
     return original(files, *args, **kwargs)
 
 original = meetings.fresh_view
@@ -396,7 +396,10 @@ lock_transaction.publish_entry = interrupt
         selected = next(self.frozen_fonts.glob("*.ttf"))
         outside = self.scratch / "other-font.ttf"
         selected.rename(outside)
-        selected.symlink_to(outside)
+        try:
+            selected.symlink_to(outside)
+        except (OSError, NotImplementedError):
+            self.skipTest("This system does not allow test symlinks.")
 
         self.assertIn("font", self.refuse("prepare", "--date", self.meeting_date,
                                          "--content", str(self.draft)))

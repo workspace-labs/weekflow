@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+from pdftotext_file import poppler_pdftotext
 import subprocess
 import sys
 import tempfile
@@ -33,7 +34,7 @@ WEEK_FIELDS = {
     "signed_by", "signed_on", "locked_on",
 }
 SECTIONS = ["where we are", "see it", "your decisions", "next week", "what we agreed"]
-PDF_TEXT = find_spec("reportlab") is not None and shutil.which("pdftotext")
+PDF_TEXT = find_spec("reportlab") is not None and poppler_pdftotext()
 TEST_PDF_RENDERER = """
 from weekflow_tool import client_pdf
 
@@ -142,7 +143,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 """]
         return run_project_command(
             [sys.executable, *loader, str(TOOL)], command, self.project, *options,
-            cwd=self.scratch, capture_output=True, text=True, timeout=15,
+            cwd=self.scratch, capture_output=True, text=True, encoding="utf-8", timeout=15,
         )
 
     def succeed(self, command, *options):
@@ -157,7 +158,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 
     def pdf_text(self):
         self.succeed("client-copy")
-        return subprocess.check_output(["pdftotext", str(self.client_page), "-"], text=True)
+        return subprocess.check_output(["pdftotext", "-enc", "UTF-8", str(self.client_page), "-"], text=True, encoding="utf-8")
 
     def refuse(self, command, *options):
         original = snapshot(self.scratch)

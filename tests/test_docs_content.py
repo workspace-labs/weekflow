@@ -279,7 +279,10 @@ class DocsContentTests(unittest.TestCase):
         self.draft()
         self.write("docs/weekly/notes.md", "The shop confirms each order with not decided.")
         hidden_link = self.root / "docs/notes.md"
-        hidden_link.symlink_to(self.root / "docs/weekly/notes.md")
+        try:
+            hidden_link.symlink_to(self.root / "docs/weekly/notes.md")
+        except (OSError, NotImplementedError):
+            self.skipTest("This system does not allow test symlinks.")
         for source in ("../notes.md", "docs/weekly/notes.md", "docs/notes.md"):
             with self.subTest(source=source):
                 sentence["source"] = source

@@ -77,9 +77,13 @@ before showing them, and read the PDF before sending it.
 ## Install
 
 Use Python 3.9 or newer. The meeting page uses Python alone. For
-`client-copy`, use a Python with ReportLab installed. The commands
+`client-copy`, use a Python with ReportLab installed. Recent ReportLab
+releases need Python 3.10 or newer, so on Python 3.9 install
+`"reportlab<4.3"`. The commands
 below use `python3` on Mac and `py -3` on Windows. Check the version
-with `python3 --version` or `py -3 --version`.
+with `python3 --version` or `py -3 --version`. The `py` launcher comes
+with the python.org installer. If Python came from the Microsoft Store,
+use `python` in place of `py -3`.
 
 The one-line install needs Node.js with `npx`. The by-hand install needs Git.
 
@@ -306,7 +310,9 @@ python3 -m unittest discover -s tests
 
 The tests cover both meeting kinds, saved answers, PDF drawing, locked
 records, carry-over, and secrets. PDF drawing needs ReportLab. Tests that
-read PDF text also need `pdftotext`. Tests skip when their tools are missing.
+read PDF text also need Poppler's `pdftotext`. Tests skip when their tools
+are missing. Git for Windows ships xpdf's `pdftotext` under the same name,
+and the tests skip with it.
 
 On macOS, Python 3.9.6 passed all 440 tests with ReportLab and `pdftotext`.
 Python 3.15.2 collected the same 440 tests, passed 375 and skipped 65.
@@ -322,7 +328,9 @@ meeting page in Chrome.
 - The secret check can miss short plain values under unusual setting names.
   It may also stop on an ordinary value whose setting name looks like a
   credential. It checks text in the draft and cannot read secrets in a picture.
-- Safari and Windows have yet to be tried.
+- Run one command at a time against a project. On Mac and Linux the tool
+  locks the project folder while a command runs. Windows has no such lock.
+- Safari and Linux have yet to be tried.
 
 ## Project map
 

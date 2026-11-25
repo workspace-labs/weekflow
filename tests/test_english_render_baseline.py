@@ -71,7 +71,7 @@ class EnglishBuildBaselineTests(build.RecordedMeetingFixture, unittest.TestCase)
         self.prepare_change(legacy_pdf=True)
         self.record_manual("C-001=yes")
         self.client_copy()
-        extracted = subprocess.check_output([build.PDFTOTEXT, "-raw", str(self.pdf), "-"], text=True)
+        extracted = subprocess.check_output([build.PDFTOTEXT, "-enc", "UTF-8", "-raw", str(self.pdf), "-"], text=True, encoding="utf-8")
         text = "".join(extracted.split())
         byline = "Decidedbytheclienton26February"
         self.assertEqual(text.count(byline), 1)

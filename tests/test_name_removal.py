@@ -59,7 +59,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 """, str(TOOL)]
         result = run_project_command(
             [sys.executable, "-B", *launcher], command, self.project, *args,
-            cwd=self.scratch, capture_output=True, text=True, timeout=30,
+            cwd=self.scratch, capture_output=True, text=True, encoding="utf-8", timeout=30,
         )
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, expected, output)
@@ -220,7 +220,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         self.assertNotEqual(pdf.read_bytes(), old_pdf)
         self.assert_redacted()
         if REPORTLAB and PDFTOTEXT:
-            copy_text = subprocess.check_output([PDFTOTEXT, str(pdf), "-"], text=True, timeout=15)
+            copy_text = subprocess.check_output([PDFTOTEXT, "-enc", "UTF-8", str(pdf), "-"], text=True, encoding="utf-8", timeout=15)
             self.assertIsNone(NAME_WORD.search(copy_text), copy_text)
 
     def test_removal_scrubs_the_page_when_a_font_cannot_be_recovered(self):
@@ -259,7 +259,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         page.with_name("week-4.html").unlink()
         pdf = page.with_suffix(".pdf")
         old_pdf = pdf.read_bytes()
-        before = subprocess.check_output([PDFTOTEXT, str(pdf), "-"], text=True, timeout=15)
+        before = subprocess.check_output([PDFTOTEXT, "-enc", "UTF-8", str(pdf), "-"], text=True, encoding="utf-8", timeout=15)
         self.assertIsNotNone(NAME_WORD.search(before), before)
 
         output = self.remove()
@@ -273,7 +273,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         self.assertEqual(self.read("pages/draft.json")["headline"], f"Review with {REPLACEMENT}")
         fallback_pdf = pdf.read_bytes()
         self.assertNotEqual(fallback_pdf, old_pdf)
-        rendered = subprocess.check_output([PDFTOTEXT, str(pdf), "-"], text=True, timeout=15)
+        rendered = subprocess.check_output([PDFTOTEXT, "-enc", "UTF-8", str(pdf), "-"], text=True, encoding="utf-8", timeout=15)
         self.assertIsNone(NAME_WORD.search(rendered), rendered)
         self.assertIn(REPLACEMENT, " ".join(rendered.split()))
         completed = snapshot(self.weekly)
@@ -334,8 +334,8 @@ runpy.run_path(sys.argv[0], run_name="__main__")
                               html)
                 if REPORTLAB and PDFTOTEXT:
                     pdf = self.weekly / "pages/week-3.pdf"
-                    result = subprocess.run([PDFTOTEXT, str(pdf), "-"], check=True, capture_output=True,
-                                            text=True, timeout=15)
+                    result = subprocess.run([PDFTOTEXT, "-enc", "UTF-8", str(pdf), "-"], check=True, capture_output=True,
+                                            text=True, encoding="utf-8", timeout=15)
                     self.assertNotIn(f"Pickup with {name}", result.stdout)
                     self.assertIn(f"2 {date.fromisoformat(meeting_date):%B}", result.stdout)
 
@@ -427,7 +427,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         pdf = self.weekly / "pages/week-3.pdf"
 
         def copy_text():
-            output = subprocess.check_output([PDFTOTEXT, str(pdf), "-"], text=True, timeout=15)
+            output = subprocess.check_output([PDFTOTEXT, "-enc", "UTF-8", str(pdf), "-"], text=True, encoding="utf-8", timeout=15)
             return " ".join(output.split())
 
         before = copy_text()
@@ -683,8 +683,8 @@ removal.date = MayDate
                 copy_before = path.read_bytes()
                 self.command("client-copy")
                 self.assertEqual(path.read_bytes(), copy_before)
-                result = subprocess.run([PDFTOTEXT, str(path), "-"], check=True, capture_output=True,
-                                        text=True, timeout=15)
+                result = subprocess.run([PDFTOTEXT, "-enc", "UTF-8", str(path), "-"], check=True, capture_output=True,
+                                        text=True, encoding="utf-8", timeout=15)
                 self.assertIsNone(NAME_WORD.search(result.stdout), result.stdout)
                 self.assertIn("Sambunwick", result.stdout)
                 # Use the same command to check the older copy after removing only the later

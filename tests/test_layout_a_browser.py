@@ -191,7 +191,7 @@ class LayoutABrowserTests(unittest.TestCase):
                 pages.append(str(page))
             result = subprocess.run(
                 [NODE, "-e", BROWSER_CHECK, CHROME, str(root / "chrome"), *pages],
-                capture_output=True, text=True, timeout=45,
+                capture_output=True, text=True, encoding="utf-8", timeout=45,
             )
         if result.returncode == 77:
             self.skipTest(result.stderr.strip())

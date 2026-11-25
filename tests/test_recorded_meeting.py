@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+from pdftotext_file import poppler_pdftotext
 import subprocess
 import sys
 import tempfile
@@ -16,7 +17,7 @@ from test_weekflow import FIXTURE, TOOL, run_project_command, snapshot
 
 
 REPORTLAB = importlib.util.find_spec("reportlab") is not None
-PDFTOTEXT = shutil.which("pdftotext")
+PDFTOTEXT = poppler_pdftotext()
 BLOCK_REPORTLAB = """
 class WithoutReportLab:
     def find_spec(self, fullname, *args):
@@ -101,7 +102,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
 """, str(TOOL)]
         result = run_project_command(
             [sys.executable, "-B", *launcher], command, self.project, *args,
-            cwd=self.scratch, capture_output=True, text=True, timeout=30,
+            cwd=self.scratch, capture_output=True, text=True, encoding="utf-8", timeout=30,
         )
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, expected, output)
@@ -175,8 +176,8 @@ Path(sys.argv[3]).write_bytes(stamp_pdf(b'%PDF-1.4\\n%%EOF\\n', view))
 
     def extract_pdf(self, layout=False):
         options = ["-layout"] if layout else []
-        return subprocess.run([PDFTOTEXT, *options, str(self.pdf), "-"],
-                              check=True, capture_output=True, text=True, timeout=15).stdout
+        return subprocess.run([PDFTOTEXT, "-enc", "UTF-8", *options, str(self.pdf), "-"],
+                              check=True, capture_output=True, text=True, encoding="utf-8", timeout=15).stdout
 
     def client_copy(self):
         # Exercise the actual copy command and PDF receipt on both interpreters.

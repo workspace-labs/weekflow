@@ -2,8 +2,6 @@
 
 import importlib.util
 from pathlib import Path
-import shutil
-import subprocess
 import sys
 import unittest
 
@@ -12,10 +10,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/weekflow/sc
 from weekflow_tool.client_pdf import render_pdf
 from weekflow_tool.page import MeetingView
 from weekflow_tool.page_html import render_html
+from pdftotext_file import pdftotext_bytes, poppler_pdftotext
 
 
 REPORTLAB = importlib.util.find_spec("reportlab") is not None
-PDFTOTEXT = shutil.which("pdftotext")
+PDFTOTEXT = poppler_pdftotext()
 
 
 def carryover_view():
@@ -59,9 +58,7 @@ class CarryoverRenderTests(unittest.TestCase):
 
     @unittest.skipUnless(REPORTLAB and PDFTOTEXT, "PDF text check needs reportlab and pdftotext")
     def test_pdf_shows_carryover_once_and_keeps_literal_markup_text(self):
-        result = subprocess.run([PDFTOTEXT, "-", "-"], input=render_pdf(carryover_view()),
-                                capture_output=True, check=True, timeout=10)
-        pdf = " ".join(result.stdout.decode("utf-8").split())
+        pdf = " ".join(pdftotext_bytes(PDFTOTEXT, render_pdf(carryover_view()), timeout=10).decode("utf-8").split())
         for text in ("What we promised last week", "Show the pickup form", "Done", "Add the allergy menu",
                      "Not finished", "Needs review.", "No meeting was held on 5 March.",
                      "Correction for week 2 on 6 March.", "Use <b>rolls</b> & bread",

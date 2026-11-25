@@ -383,7 +383,10 @@ class ProjectSecretTests(unittest.TestCase):
         outside = self.scratch / "outside"
         outside.mkdir()
         (outside / ".env").write_text(f"SESSION_TOKEN={value}\n", encoding="utf-8")
-        (self.project / "linked-settings").symlink_to(outside, target_is_directory=True)
+        try:
+            (self.project / "linked-settings").symlink_to(outside, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest("This system does not allow test symlinks.")
         self.write_content(headline=f"The draft can contain {value}.")
         self.prepare()
         self.assertIn(value, self.page.read_text(encoding="utf-8"))
@@ -396,7 +399,10 @@ class ProjectSecretTests(unittest.TestCase):
                 target = self.settings(f"configuration/{suffix}.txt", f"{name}={value}\n")
                 env = f".env.{suffix}"
                 destination = target.relative_to(self.project) if suffix == "relative" else target
-                (self.project / env).symlink_to(destination)
+                try:
+                    (self.project / env).symlink_to(destination)
+                except (OSError, NotImplementedError):
+                    self.skipTest("This system does not allow test symlinks.")
                 self.write_content(headline=f"The draft contains {value}.")
                 self.assert_secret_refusal(name, env, "headline", value)
 
@@ -405,7 +411,10 @@ class ProjectSecretTests(unittest.TestCase):
         value = "fixture-outside-file"
         outside = self.scratch / "local.env"
         outside.write_text(f"SESSION_TOKEN={value}\n", encoding="utf-8")
-        (self.project / ".env.local").symlink_to(outside)
+        try:
+            (self.project / ".env.local").symlink_to(outside)
+        except (OSError, NotImplementedError):
+            self.skipTest("This system does not allow test symlinks.")
         self.write_content()
         message = self.refuse_prepare()
         self.assertIn(".env.local", message)
@@ -521,7 +530,7 @@ Path.read_bytes = deny_settings
                          "docs/weekly/pages/week-3.pdf"} <= written.keys())
         checked = dict(written, output=output.encode("utf-8"))
         if decode_pdf:
-            pdf_text = subprocess.check_output(["pdftotext", str(self.client_page), "-"], timeout=15)
+            pdf_text = subprocess.check_output(["pdftotext", "-enc", "UTF-8", str(self.client_page), "-"], timeout=15)
             self.assertIn(b"The bread menu is ready", pdf_text)
             checked["decoded PDF"] = pdf_text
         for name, data in checked.items():

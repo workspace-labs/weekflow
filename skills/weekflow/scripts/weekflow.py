@@ -160,7 +160,16 @@ def refuse(messages):
     return 2
 
 
+def use_utf8_output():
+    # Windows pipes default to the ANSI code page, which cannot print arrows or Arabic.
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="backslashreplace")
+
+
 def main(argv=None):
+    use_utf8_output()
     try:
         args = arguments(argv)
         files = ProjectFiles(args.project)

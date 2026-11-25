@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+from pdftotext_file import poppler_pdftotext
 import subprocess
 import sys
 import tempfile
@@ -22,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "skills/weekflow/scripts/weekflow.py"
 FIXTURE = ROOT / "tests/fixtures/corner-bakery"
 PANEL_IDS = {f"panel-{number}" for number in range(1, 6)}
-PDF_TEXT = find_spec("reportlab") is not None and shutil.which("pdftotext")
+PDF_TEXT = find_spec("reportlab") is not None and poppler_pdftotext()
 
 
 class PageMarkup(HTMLParser):
@@ -56,7 +57,7 @@ class MeetingPageTests(unittest.TestCase):
     def command(self, command, *args, expected=0):
         result = run_project_command(
             [sys.executable, str(TOOL)], command, self.project, *args,
-            cwd=self.project, capture_output=True, text=True, timeout=15,
+            cwd=self.project, capture_output=True, text=True, encoding="utf-8", timeout=15,
         )
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         return result.stdout + result.stderr
@@ -92,7 +93,7 @@ class MeetingPageTests(unittest.TestCase):
 
     def pdf_text(self):
         self.confirmed_copy()
-        return " ".join(subprocess.check_output(["pdftotext", str(self.copy), "-"], text=True).split())
+        return " ".join(subprocess.check_output(["pdftotext", "-enc", "UTF-8", str(self.copy), "-"], text=True, encoding="utf-8").split())
 
     def test_page_is_self_contained(self):
         self.add_change(2)

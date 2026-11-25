@@ -3,7 +3,6 @@
 from dataclasses import replace
 from datetime import date, timedelta
 from io import BytesIO
-import subprocess
 import sys
 import unittest
 from unittest.mock import patch
@@ -19,13 +18,11 @@ sys.path.insert(0, str(TOOL.parent))
 from weekflow_tool.client_pdf import render_pdf
 from weekflow_tool.meeting_design import PDF_LAYOUT_C_REVISED, studio_design, with_pdf_paper
 from weekflow_tool.page import MeetingView
+from pdftotext_file import pdftotext_bytes
 
 
 def extract(pdf, option="-raw"):
-    return subprocess.run(
-        [PDFTOTEXT, option, "-", "-"], input=pdf, check=True, capture_output=True,
-        timeout=15,
-    ).stdout.decode()
+    return pdftotext_bytes(PDFTOTEXT, pdf, option).decode()
 
 
 def layout_c(view):

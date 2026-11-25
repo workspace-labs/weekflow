@@ -3,9 +3,7 @@
 import importlib.util
 from base64 import b64encode
 from pathlib import Path
-import shutil
 from struct import pack
-import subprocess
 import sys
 import unittest
 import zlib
@@ -14,10 +12,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "skills/weekflow/sc
 from weekflow_tool.client_pdf import render_pdf
 from weekflow_tool.page import MeetingView
 from weekflow_tool.page_html import render_html
+from pdftotext_file import pdftotext_bytes, poppler_pdftotext
 
 
 REPORTLAB = importlib.util.find_spec("reportlab") is not None
-PDFTOTEXT = shutil.which("pdftotext")
+PDFTOTEXT = poppler_pdftotext()
 
 
 def png(rgb, width=12, height=20):
@@ -98,9 +97,7 @@ class ScreenRenderTests(unittest.TestCase):
             with self.subTest(app_ran=ran):
                 report = render_pdf(screen_view(app_ran=ran))
                 self.assertGreaterEqual(report.count(b"/Subtype /Image"), 4)
-                result = subprocess.run([PDFTOTEXT, "-", "-"], input=report, capture_output=True,
-                                        check=True, timeout=10)
-                text = " ".join(result.stdout.decode("utf-8").split())
+                text = " ".join(pdftotext_bytes(PDFTOTEXT, report, timeout=10).decode("utf-8").split())
                 for value in ("Bread & rolls", "Finished", "We are here", "Not built yet", "Earlier",
                               "Current", "4 March 2026", "11 March 2026", "1 March 2026", "Design",
                               "Removed on 10 March 2026 because Personal details",

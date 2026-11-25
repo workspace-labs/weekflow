@@ -60,9 +60,10 @@ class DocsMeetingTests(unittest.TestCase):
         shutil.copytree(FIXTURE, self.project)
         self.weekly = self.project / "docs/weekly"
         self.prd = self.project / "docs/prd.md"
-        self.prd.write_text("# PRD: Corner Bakery\n> v1 · Draft\n\n" + SOURCE, encoding="utf-8")
+        # Write bytes so Windows keeps LF line endings and the page fingerprint matches.
+        self.prd.write_bytes(("# PRD: Corner Bakery\n> v1 · Draft\n\n" + SOURCE).encode("utf-8"))
         self.form = self.project / "docs/meeting-form.md"
-        self.form.write_text(FORM, encoding="utf-8")
+        self.form.write_bytes(FORM.encode("utf-8"))
         self.draft = self.project / DRAFT_PATH
         self.page = self.weekly / "pages/week-3.html"
         self.project_row = self.weekly / "project.json"
@@ -82,7 +83,7 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         before = snapshot(self.project) if not succeeds else None
         result = run_project_command(
             command, name, self.project, *options,
-            cwd=self.scratch, capture_output=True, text=True, timeout=15,
+            cwd=self.scratch, capture_output=True, text=True, encoding="utf-8", timeout=15,
         )
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, 0 if succeeds else 2, output)
@@ -299,8 +300,8 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         self.assertEqual(current["decisions_left"], 0)
         if PDF_TEXT:
             pdf = self.weekly / "pages/week-4.pdf"
-            flat = " ".join(subprocess.check_output(["pdftotext", str(pdf), "-"],
-                                                    text=True).split())
+            flat = " ".join(subprocess.check_output(["pdftotext", "-enc", "UTF-8", str(pdf), "-"],
+                                                    text=True, encoding="utf-8").split())
             for phrase in ("All decided", "Settled outside the meeting", settled, reworded):
                 self.assertIn(phrase, flat)
         self.write_draft(decisions=[])
@@ -473,8 +474,8 @@ runpy.run_path(sys.argv[0], run_name="__main__")
         self.invoke("confirm")
         self.record("D-001=the manager", "D-002=later")
         self.close(real_pdf=True)
-        text = subprocess.check_output(["pdftotext", str(self.weekly / "pages/week-4.pdf"), "-"],
-                                       text=True)
+        text = subprocess.check_output(["pdftotext", "-enc", "UTF-8", str(self.weekly / "pages/week-4.pdf"), "-"],
+                                       text=True, encoding="utf-8")
         flat = " ".join(text.split())
         for phrase in ("22 August", "5 September", "No meeting was held on 15 August",
                        "Correction for week 3 on", "Held in meeting 1", "Decide next week",

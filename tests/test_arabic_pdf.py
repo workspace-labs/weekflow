@@ -3,7 +3,6 @@
 from dataclasses import replace
 from io import BytesIO
 import re
-import subprocess
 import sys
 from unicodedata import normalize
 import unittest
@@ -12,6 +11,7 @@ from unittest.mock import patch
 from test_recorded_meeting import PDFTOTEXT, REPORTLAB
 from test_screen_render import screen_view
 from test_weekflow import TOOL
+from pdftotext_file import pdftotext_bytes
 
 
 sys.path.insert(0, str(TOOL.parent))
@@ -125,9 +125,7 @@ class ArabicMeetingPdfTests(unittest.TestCase):
         for mode in ("docs", "build"):
             with self.subTest(mode=mode):
                 pdf = render_pdf(self.arabic_view(mode))
-                result = subprocess.run([PDFTOTEXT, "-layout", "-", "-"], input=pdf,
-                                        capture_output=True, check=True, timeout=10)
-                drawn = " ".join(result.stdout.decode().split())
+                drawn = " ".join(pdftotext_bytes(PDFTOTEXT, pdf, "-layout", timeout=10).decode().split())
                 candidates = [key for key in ARABIC if "{" not in key]
                 candidates += ["Paper signature", "Delivery date before the meeting", "Page 1"]
                 for english in candidates:
@@ -148,9 +146,7 @@ class ArabicMeetingPdfTests(unittest.TestCase):
             with self.subTest(moved=moved):
                 week = view.week if moved else dict(view.week, end_after=view.week["end_before"], answers=[])
                 pdf = render_pdf(replace(view, week=week, design=design))
-                result = subprocess.run([PDFTOTEXT, "-layout", "-", "-"], input=pdf,
-                                        capture_output=True, check=True, timeout=10)
-                drawn = " ".join(normalize("NFKC", result.stdout.decode()).split())
+                drawn = " ".join(normalize("NFKC", pdftotext_bytes(PDFTOTEXT, pdf, "-layout", timeout=10).decode()).split())
                 self.assertIn("توقيع العميل", drawn)
                 self.assertEqual("مطلوب لأن موعد التسليم تغيّر" in drawn, moved)
 

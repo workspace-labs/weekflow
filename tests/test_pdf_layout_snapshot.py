@@ -30,7 +30,7 @@ def use_legacy_pdf(content_path):
 
 class PdfLayoutSnapshotTests(RecordedMeetingFixture, unittest.TestCase):
     def assert_rendered_layout(self, pdf, *, legacy):
-        text = subprocess.check_output([PDFTOTEXT, str(pdf), "-"], text=True, timeout=15)
+        text = subprocess.check_output([PDFTOTEXT, "-enc", "UTF-8", str(pdf), "-"], text=True, encoding="utf-8", timeout=15)
         if legacy:
             self.assertIn("Delivery date before the meeting:", text)
         else:

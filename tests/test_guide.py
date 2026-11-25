@@ -47,7 +47,7 @@ class GuideTests(unittest.TestCase):
 
     def run_tool(self, *args):
         result = subprocess.run(
-            [sys.executable, str(TOOL), *args], capture_output=True, text=True, timeout=15,
+            [sys.executable, str(TOOL), *args], capture_output=True, text=True, encoding="utf-8", timeout=15,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout

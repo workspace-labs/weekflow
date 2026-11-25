@@ -17,7 +17,7 @@ class MeetingColoursTests(RecordedMeetingFixture, unittest.TestCase):
         result = subprocess.run(
             [sys.executable, str(TOOL), "prepare", str(self.project),
              "--date", self.meeting_date, "--content", str(self.draft), *options],
-            cwd=self.scratch, capture_output=True, text=True, timeout=15,
+            cwd=self.scratch, capture_output=True, text=True, encoding="utf-8", timeout=15,
         )
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, expected, output)

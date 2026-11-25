@@ -75,7 +75,7 @@ class ArabicNameRemovalTests(unittest.TestCase):
                 meeting.pages / "week-5.html")
 
     def drawn_line(self, pdf, word):
-        drawn = subprocess.check_output(["pdftotext", str(pdf), "-"], text=True, timeout=15)
+        drawn = subprocess.check_output(["pdftotext", "-enc", "UTF-8", str(pdf), "-"], text=True, encoding="utf-8", timeout=15)
         return [line.encode("utf-8") for line in drawn.splitlines()
                 if whole_word(word).search(normalize("NFKC", line))]
 

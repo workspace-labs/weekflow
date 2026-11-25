@@ -217,7 +217,10 @@ lock_transaction.publish_entry = stop_after_project
         ignore.write_text("# Existing ignore notes\n", encoding="utf-8")
         other_page = self.scratch / "unchanged.html"
         other_page.write_text("Keep this page.", encoding="utf-8")
-        self.page.symlink_to(other_page)
+        try:
+            self.page.symlink_to(other_page)
+        except (OSError, NotImplementedError):
+            self.skipTest("This system does not allow test symlinks.")
 
         message = self.refuse("prepare", *self.prepare_args, "--pdf-paper", "white")
 

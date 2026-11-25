@@ -80,7 +80,7 @@ class ScreenInputs(RecordedMeetingFixture, unittest.TestCase):
     def test_weekly_ignores_preserve_existing_lines_and_override_directory_negation(self):
         def git(*args):
             result = subprocess.run(
-                ["git", "-c", "init.templateDir=", *args], cwd=self.project, text=True,
+                ["git", "-c", "init.templateDir=", *args], cwd=self.project, text=True, encoding="utf-8",
                 capture_output=True, timeout=10,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
