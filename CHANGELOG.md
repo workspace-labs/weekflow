@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1] - 2026-11-27
+
+- Write tool output as UTF-8 on Windows so piping output with arrows or Arabic does not crash commands.
+- Keep LF line endings in Windows checkouts with `.gitattributes`.
+- Fix Windows tests to read subprocess output as UTF-8, write byte-sensitive fixtures as bytes, skip symlink checks when links are unavailable, and use Poppler for PDF text checks.
+- Document `py -3` on Windows, ReportLab on Python 3.9, and Poppler for PDF text tests.
+
 ## [0.2.0] - 2026-11-24
 
 - At build-meeting close, weekflow offers to hand agreed changes to project-docs and carries earlier scope decisions forward until their IDs appear in the PRD's dated change history. The designated approver approves the revised requirement and its check before it is built.
